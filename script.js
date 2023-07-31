@@ -5,18 +5,22 @@ const squares = document.querySelectorAll('.container>div'),
       bot = document.querySelector('.bot'),
       twoPlayers = document.querySelector('.twoPlayers'),
       h2 = document.querySelector('main > h2');
+
+let controller, game;
     
 twoPlayers.addEventListener('click', () => {
-    game = gameFactory();
+    controller = new AbortController();
+    const signal = controller.signal;
     clear(circle, plus);
-    h2.innerText = 'Two players mode';
+    game = gameFactory();
+    h2.textContent = 'Two players mode';
 
     squares.forEach((square, index) => {
         square.addEventListener('click', () => {
             playRound(game, index);
-        });
+        }, { signal });
     })
-})
+});
 
 const gameFactory = function () {
     const players = (function () {
@@ -25,7 +29,7 @@ const gameFactory = function () {
         
             playerOne = arr[Math.floor(Math.random()*2)];
             if(playerOne == plus) {playerOne = plus[0]; playerTwo = circle[0];}
-            else playerTwo = plus[0];
+            else {playerOne = circle[0]; playerTwo = plus[0];}
         
             return {playerOne, playerTwo}
         })();
@@ -39,16 +43,16 @@ function playRound (game, index) {
     switch(true) {
         case game.choice == 0 && plus[index].style.display == '' && circle[index].style.display == '':
              game.players.playerOne == plus[0] ? plus[index].style.display = 'block' : circle[index].style.display = 'block';
-             game.choice++; break;
+             game.choice++; h2.textContent = 'Two players mode'; break;
         case game.choice == 1 && plus[index].style.display == '' && circle[index].style.display == '':
             game.players.playerTwo == plus[0] ? plus[index].style.display = 'block' : circle[index].style.display = 'block';
-             game.choice--; break;
+             game.choice--; h2.textContent = 'Two players mode'; break;
         default: 
-             h2.innerText = 'Choose other square';
+            h2.textContent = 'Choose other square';
              break;
     }
+
     roundWinner(plus, circle, game.players);
-    return;
 }
 
 function roundWinner (plus, circle, players) {
@@ -68,24 +72,27 @@ function roundWinner (plus, circle, players) {
         return [...elem].map((x, index) => x.style.display !== '' ? index:undefined).filter(x => x !== undefined)
     };
 
-    function check (players, element) {
+    function declareWinner (players, element) {
         for(const key in players) {
-            if(players[key] == element) {h2.innerText = `${key} are the winner`}
+            if(players[key] == element) {h2.textContent = `${key} are the winner`}
         }
+    };
+
+    function winner (array, arr2) {
+        return arr2.every(element => array.includes(element))
     }
 
     for(let i = 0; i < winningCond.length; i++) {
-        if(winningCond[i].every(element => oArr.includes(element))) {
-            check(players, circle[0]); break;
+        if(winner(oArr, winningCond[i])) {
+            declareWinner(players, circle[0]); controller.abort(); return;
     }
-        if(winningCond[i].every(element => xArr.includes(element))) {
-            check(players, plus[0]); break;
+        if(winner(xArr, winningCond[i])) {
+            declareWinner(players, plus[0]); controller.abort(); return;
         }
     }
 
-    if(![...plus].some(element => element.style.display == '' || 
-        ![...circle].some(element => element.style.display == ''))) {
-        h2.innerText = "It's a tie";
+    if(oArr.length + xArr.length == 9) {
+        h2.textContent = "It's a tie";
     }
 }
 
@@ -156,7 +163,7 @@ const gameFactory = function () {
             return boardGame.map((x, index) => x == str?index:undefined).filter(x => x !== undefined)
         };
 
-        function check (players, string, score) {
+        function declareWinner (players, string, score) {
             for(const key in players) {
                 if(players[key] == string) {score[key]++; console.log(`${key} are the winner`)}
             }
@@ -164,10 +171,10 @@ const gameFactory = function () {
 
         for(let i = 0; i < winningCond.length; i++) {
             if(winningCond[i].every(element => oArr.includes(element))) {
-                check(players, 'O', score); break;
+                declareWinner(players, 'O', score); break;
         }
             if(winningCond[i].every(element => xArr.includes(element))) {
-                check(players, 'X', score); break;
+                declareWinner(players, 'X', score); break;
             }
         }
 
