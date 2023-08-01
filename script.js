@@ -4,7 +4,10 @@ const squares = document.querySelectorAll('.container>div'),
       plus = document.querySelectorAll('.plus'),
       bot = document.querySelector('.bot'),
       twoPlayers = document.querySelector('.twoPlayers'),
-      h2 = document.querySelector('main > h2');
+      h2 = document.querySelector('main > h2'),
+      plusHover = document.querySelector('.plusC'),
+      circleHover = document.querySelector('.circleC'),
+      creationDiv = document.querySelector('.creation');
 
 let controller, game;
     
@@ -15,10 +18,35 @@ twoPlayers.addEventListener('click', () => {
     game = gameFactory();
     h2.textContent = 'Two players mode';
 
+    function hover (index, element) {
+        squares[index].appendChild(element);
+        element.style.display = 'block';
+        element.style.opacity = 0.6;
+    }
+
     squares.forEach((square, index) => {
         square.addEventListener('click', () => {
             playRound(game, index);
         }, { signal });
+        square.addEventListener('mouseenter', () => {
+            switch(true) {
+                case game.choice == 0 && check(index) && game.players.playerOne == plus[0]:
+                     hover(index, plusHover);
+                     return;
+                case game.choice == 1 && check(index) && game.players.playerTwo == plus[0]:
+                     hover(index, plusHover);
+                     return;
+                default: 
+                     if(check(index)) hover(index, circleHover);
+                     return;
+            }
+        }, { signal });
+        square.addEventListener('mouseleave', () => {
+            if(squares[index].contains(plusHover)) 
+                {creationDiv.appendChild(plusHover);}
+            if(squares[index].contains(circleHover))
+                {creationDiv.appendChild(circleHover);}
+        });
     })
 });
 
@@ -40,11 +68,16 @@ const gameFactory = function () {
     }
 
 function playRound (game, index) {
+    if (squares[index].contains(plusHover)) 
+        {creationDiv.appendChild(plusHover)};
+    if (squares[index].contains(circleHover)) 
+        {creationDiv.appendChild(circleHover)};
+
     switch(true) {
-        case game.choice == 0 && plus[index].style.display == '' && circle[index].style.display == '':
+        case game.choice == 0 && check(index):
              game.players.playerOne == plus[0] ? plus[index].style.display = 'block' : circle[index].style.display = 'block';
              game.choice++; h2.textContent = 'Two players mode'; break;
-        case game.choice == 1 && plus[index].style.display == '' && circle[index].style.display == '':
+        case game.choice == 1 && check(index):
             game.players.playerTwo == plus[0] ? plus[index].style.display = 'block' : circle[index].style.display = 'block';
              game.choice--; h2.textContent = 'Two players mode'; break;
         default: 
@@ -103,6 +136,10 @@ function clear(circle, plus) {
     circle.forEach(circleEm => {
         circleEm.style.display = '';
     })
+}
+
+function check (index) {
+    return plus[index].style.display == '' && circle[index].style.display == ''
 }
 
 /* 
