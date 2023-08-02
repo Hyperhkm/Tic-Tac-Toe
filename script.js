@@ -118,10 +118,10 @@ function playRound (game, index) {
     switch(true) {
         case game.choice == 0 && check(index):
              elementChoice('playerOne');
-             game.choice++; h2.textContent = 'Player vs AI'; break;
+             game.choice++; h2.textContent = 'Player vs Player'; break;
         case game.choice == 1 && check(index):
              elementChoice('playerTwo');
-             game.choice--; h2.textContent = 'Player vs AI'; break;
+             game.choice--; h2.textContent = 'Player vs Player'; break;
         default: 
             h2.textContent = 'Choose other square';
              break;
